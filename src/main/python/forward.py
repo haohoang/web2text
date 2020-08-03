@@ -1,5 +1,7 @@
+from tensorflow import convert_to_tensor
+import tensorflow
 import tensorflow as tf
-from tensorflow import variable_scope, convert_to_tensor
+from tensorflow.compat.v1 import variable_scope
 
 from config import Config
 
@@ -89,10 +91,10 @@ def loss(logits, labels):
   cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels)
   cross_entropy_mean = tf.reduce_mean(cross_entropy)
 
-  regularization_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+  regularization_losses = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.REGULARIZATION_LOSSES)
 
   loss_ = tf.add_n([cross_entropy_mean] + regularization_losses)
-  tf.summary.scalar('loss', loss_)
+  tf.compat.v1.summary.scalar('loss', loss_)
 
   return loss_
 
@@ -107,16 +109,17 @@ def _get_variable(name,
   "Source: https://github.com/ry/tensorflow-resnet/blob/master/resnet.py"
 
   if weight_decay > 0.0:
-      regularizer = tf.contrib.layers.l2_regularizer(weight_decay)
+      # regularizer = tf.contrib.layers.l2_regularizer(weight_decay)
+      regularizer = tf.keras.regularizers.l2(weight_decay)
   else:
       regularizer = None
 
   if collection:
-    collections = [tf.GraphKeys.GLOBAL_VARIABLES, collection]
+    collections = [tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, collection]
   else:
-    collections = [tf.GraphKeys.GLOBAL_VARIABLES]
+    collections = [tf.compat.v1.GraphKeys.GLOBAL_VARIABLES]
 
-  return tf.get_variable(name,
+  return tf.compat.v1.get_variable(name,
                          shape       = shape,
                          initializer = initializer,
                          dtype       = dtype,
@@ -136,7 +139,7 @@ def conv(x, c):
 
   filters_in  = x.get_shape()[-1]
   shape       = [ksize, 1, filters_in, filters_out]
-  initializer = tf.truncated_normal_initializer(stddev = weight_stddev)
+  initializer = tf.compat.v1.truncated_normal_initializer(stddev = weight_stddev)
 
   weights = _get_variable('weights',
                           shape        = shape,
@@ -144,7 +147,7 @@ def conv(x, c):
                           dtype        = 'float',
                           initializer  = initializer,
                           weight_decay = weight_decay)
-  weights = tf.nn.dropout(weights, c['dropout_keep_prob'])
+  weights = tf.compat.v1.nn.dropout(weights, c['dropout_keep_prob'])
 
   bias    = _get_variable('bias', [filters_out],
                           initializer  = tf.zeros_initializer)

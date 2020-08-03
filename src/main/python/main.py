@@ -3,7 +3,8 @@ import sys
 import time
 
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from forward import EDGE_VARIABLES, UNARY_VARIABLES, edge, loss, unary
 from shuffle_queue import ShuffleQueue
 from viterbi import viterbi
@@ -44,9 +45,9 @@ def main():
 def evaluate_unary(dataset, prediction_fn):
   fp, fn, tp, tn = 0, 0, 0, 0
   for doc in dataset:
-    predictions = prediction_fn(doc[b'data'], doc[b'edge_data'])
+    predictions = prediction_fn(doc['data'], doc['edge_data'])
 
-    for i, lab in enumerate(doc[b'labels']):
+    for i, lab in enumerate(doc['labels']):
       if predictions[i] == 1 and lab == 1:
         tp += 1
       elif predictions[i] == 1 and lab == 0:
@@ -67,9 +68,9 @@ def evaluate_unary(dataset, prediction_fn):
 def evaluate_edge(dataset, prediction_fn):
   correct, incorrect = 0, 0
   for doc in dataset:
-    predictions = prediction_fn(doc[b'edge_data'])
+    predictions = prediction_fn(doc['edge_data'])
 
-    for i, lab in enumerate(doc[b'edge_labels']):
+    for i, lab in enumerate(doc['edge_labels']):
       if predictions[i] == lab:
         correct += 1
       else:
@@ -294,18 +295,18 @@ def get_batch(q, batch_size=BATCH_SIZE, patch_size=PATCH_SIZE):
     # Find an entry that is long enough (at least one patch size)
     while True:
       doc = q.takeOne()
-      length = doc[b'data'].shape[0]
+      length = doc['data'].shape[0]
       if length > PATCH_SIZE+1:
         break
 
     # Select a random patch
-    i = np.random.random_integers(length-PATCH_SIZE-1)
-
+    # i = np.random.random_integers(length-PATCH_SIZE-1)
+    i = np.random.randint(1, length-PATCH_SIZE)
     # Add it to the tensors
-    batch[entry,:,0,:]       = doc[b'data'][i:i+PATCH_SIZE,:]
-    edge_batch[entry,:,0,:]  = doc[b'edge_data'][i:i+PATCH_SIZE-1,:]
-    labels[entry,:,0,0]      = doc[b'labels'][i:i+PATCH_SIZE] # {0,1}
-    edge_labels[entry,:,0,0] = doc[b'edge_labels'][i:i+PATCH_SIZE-1] # {0,1,2,3} = {00,01,10,11}
+    batch[entry,:,0,:]       = doc['data'][i:i+PATCH_SIZE,:]
+    edge_batch[entry,:,0,:]  = doc['edge_data'][i:i+PATCH_SIZE-1,:]
+    labels[entry,:,0,0]      = doc['labels'][i:i+PATCH_SIZE] # {0,1}
+    edge_labels[entry,:,0,0] = doc['edge_labels'][i:i+PATCH_SIZE-1] # {0,1,2,3} = {00,01,10,11}
 
   return batch, edge_batch, labels, edge_labels
 

@@ -34,8 +34,8 @@ object Main {
       + TagExtractor(mode="leaf"),
       TreeDistanceExtractor + BlockBreakExtractor + CommonAncestorExtractor(NodeBlockExtractor)
     )
-    val data = Util.time{ CleanEval.dataset(fe) }
-    CsvDatasetWriter.write(data, "/Users/tvogels/Desktop/export")
+    val data = Util.time{ CleanEval.trainingDataset(fe) }
+    CsvDatasetWriter.write(data, "/Volumes/HHD/intelliJ/src/main/python/data")
     println("# Block features")
     fe.blockExtractor.labels.foreach(println)
     println("# Edge features")

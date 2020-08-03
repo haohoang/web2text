@@ -1,11 +1,13 @@
 # This is a variable scope aware configuation object for TensorFlow
 # Source: https://github.com/ry/tensorflow-resnet/blob/master/config.py
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from future.utils import iteritems
 
 FLAGS = tf.app.flags.FLAGS
-
+import sys
+FLAGS(sys.argv)
 
 class Config:
     def __init__(self):
@@ -114,3 +116,4 @@ if __name__ == '__main__':
         assert_raises(KeyError, lambda: c['dog'])
         assert c['bar'] == 2
         assert c['hello'] == 1
+    print("Done")

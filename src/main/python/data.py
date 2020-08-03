@@ -1,6 +1,6 @@
 import numpy as np
 
-cleaneval = np.load("data/cleaneval.npy", encoding='bytes')
+cleaneval = np.load("data/cleaneval.npy", allow_pickle=True, encoding='bytes')
 
 web2text_test = cleaneval[
 np.array([309,87,534,705,362,192,247,538,311,29,494,202,210,636,183,238,628,64
